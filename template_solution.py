@@ -49,13 +49,12 @@ def calculate_RMSE(w, X, y):
     rmse: float: dim = 1, RMSE value
     """
     rmse = 0
-    n = len(w)
 
     yhat = X@w
     error = np.subtract(y, yhat)
     sum = np.dot(error, error)
 
-    rmse =  (sum / n) ** 0.5
+    rmse =  (sum / y.shape[0]) ** 0.5
     
     assert np.isscalar(rmse)
     return rmse
@@ -77,25 +76,26 @@ def average_LR_RMSE(X, y, lambdas, n_folds):
     ----------
     avg_RMSE: array of floats: dim = (5,), average RMSE value for every lambda
     """
+    X = data.to_numpy()
+    # The function calculating the average RMSE
+    lambdas = [0.1, 1, 10, 100, 200]
+    n_folds = 10
+    chunk_size = np.ceil((X.size / n_folds + 0.5))
+    kf = KFold(n_splits=n_folds, shuffle=True, random_state=59155  )
+
+
+
     RMSE_mat = np.zeros((n_folds, len(lambdas)))
+    for j, lam in enumerate(lambdas):
+        for i, (train_index, val_index) in enumerate(kf.split(X)):
+                    
+            train_X, val_X = X[train_index], X[val_index]
+            train_y, val_y = y[train_index], y[val_index]
 
-    for j in range(len(lambdas)):
-        lam = lambdas[j]
-        for i in range( n_folds):
-            
-            foldstart = X[: i * 10 ]
-            foldend = X[(i+1)*10 :]
-            val_X = X[i * 10:(i+1)*10 ]
-            train_X = np.concatenate((foldstart , foldend))
-
-            ystart = y[:i*10]
-            yend = y[(i+1)*10:]
-            val_y = y[i * 10:(i+1)*10 ]
-            train_y = np.concatenate((ystart,yend))
-
-            w = fit(train_X,train_y,lam)
-            rmse = calculate_RMSE(w,val_X,val_y)
-            RMSE_mat[i,j] = rmse
+            w = fit(train_X, train_y, lam)
+                    
+            rmse = calculate_RMSE(w, val_X, val_y)
+            RMSE_mat[i, j] = rmse
 
         
 
@@ -119,4 +119,4 @@ if __name__ == "__main__":
     n_folds = 10
     avg_RMSE = average_LR_RMSE(X, y, lambdas, n_folds)
     # Save results in the required format
-    np.savetxt("./results1.csv", avg_RMSE, fmt="%.12f")
+    np.savetxt("./base11.csv", avg_RMSE, fmt="%.12f")
