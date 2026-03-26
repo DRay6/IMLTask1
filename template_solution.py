@@ -94,7 +94,7 @@ def average_LR_RMSE(X, y, lambdas, n_folds):
             train_y = np.concatenate((ystart,yend))
 
             w = fit(train_X,train_y,lam)
-            rmse = calculate_RMSE(w,train_X,train_y)
+            rmse = calculate_RMSE(w,val_X,val_y)
             RMSE_mat[i,j] = rmse
 
         
