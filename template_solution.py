@@ -80,24 +80,24 @@ def average_LR_RMSE(X, y, lambdas, n_folds):
     RMSE_mat = np.zeros((n_folds, len(lambdas)))
 
     for j in range(len(lambdas)):
-        lam = lambdas[j-1]
-        for i in range(1, n_folds):
+        lam = lambdas[j]
+        for i in range( n_folds):
             
-            foldstart = X[: (i-1) * 10 ]
-            foldend = X[i*10 :]
-            val_X = X[(i-1) * 10:i*10 ]
+            foldstart = X[: i * 10 ]
+            foldend = X[(i+1)*10 :]
+            val_X = X[i * 10:(i+1)*10 ]
             train_X = np.concatenate((foldstart , foldend))
 
-            ystart = y[:(i-1)*10]
-            yend = y[i*10:]
-            val_y = y[(i-1) * 10:i*10 ]
+            ystart = y[:i*10]
+            yend = y[(i+1)*10:]
+            val_y = y[i * 10:(i+1)*10 ]
             train_y = np.concatenate((ystart,yend))
 
             w = fit(train_X,train_y,lam)
             rmse = calculate_RMSE(w,train_X,train_y)
             RMSE_mat[i,j] = rmse
 
-    
+        
 
     avg_RMSE = np.mean(RMSE_mat, axis=0)
     assert avg_RMSE.shape == (5,)
